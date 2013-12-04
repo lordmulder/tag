@@ -24,6 +24,9 @@
     <ClInclude Include="src\parser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\ape_tag.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\unicode_support.cpp">
@@ -33,6 +36,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\parser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ape_tag.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

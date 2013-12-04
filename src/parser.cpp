@@ -42,7 +42,7 @@ static const struct
 g_tagSpec[]
 {
 	{ "Artist", TAG_TYPE_STRING },
-	{ "Year",   TAG_TYPE_DATE },
+	{ "Year",   TAG_TYPE_DATE   },
 	{ NULL, ((TagType)-1) }
 };
 
@@ -76,13 +76,14 @@ bool TagParser::parse(int argc, char* argv[], std::vector<TagItem*> &items)
 {
 	for(int i = 3; i < argc; i++)
 	{
-		char *key = _strdup(argv[i]);
-		char *val = strchr(key, '=');
+		char *tmp = _strdup(argv[i]);
+		char *key = tmp;
+		char *val = strchr(tmp, '=');
 
 		if(val == NULL)
 		{
 			LOG("Separator is missing in tag specification:\n%s\n\n", argv[i]);
-			free(key);
+			free(tmp);
 			return false;
 		}
 
@@ -92,7 +93,7 @@ bool TagParser::parse(int argc, char* argv[], std::vector<TagItem*> &items)
 		if(!(val[0] && key[0]))
 		{
 			LOG("Key or value is empty in tag specification:\n\"%s\" = \"%s\"\n\n", key, val);
-			free(key);
+			free(tmp);
 			return false;
 		}
 
@@ -120,7 +121,7 @@ bool TagParser::parse(int argc, char* argv[], std::vector<TagItem*> &items)
 				if(!ok)
 				{
 					LOG("Tag specification contains a malformed value:\n\"%s\" = \"%s\"\n\n", key, val);
-					free(key);
+					free(tmp);
 					return false;
 				}
 			}
@@ -129,11 +130,11 @@ bool TagParser::parse(int argc, char* argv[], std::vector<TagItem*> &items)
 		if(!ok)
 		{
 			LOG("Tag specification uses an unknown key:\n\"%s\" = \"%s\"\n\n", key, val);
-			free(key);
+			free(tmp);
 			return false;
 		}
 
-		free(key);
+		free(tmp);
 	}
 	
 	return true;

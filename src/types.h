@@ -77,7 +77,7 @@ public:
 	virtual const unsigned int toNumber(void) const = 0;
 	virtual const TagDate     &toDate(void)   const = 0;
 	
-	virtual const TagType type(void) = 0;
+	virtual const TagType type(void) const = 0;
 
 private:
 	TagData &operator=(const TagData &rhs) { throw std::runtime_error("Unimplemented!");}
@@ -94,7 +94,7 @@ public:
 	virtual const unsigned int toNumber(void) const      { throw std::runtime_error("Invalid type requested!"); }
 	virtual const TagDate &toDate(void)       const      { throw std::runtime_error("Invalid type requested!"); }
 
-	virtual const TagType type(void)                     { return TAG_TYPE_STRING; }
+	virtual const TagType type(void) const               { return TAG_TYPE_STRING; }
 
 private:
 	char *m_string;
@@ -112,7 +112,7 @@ public:
 	virtual const unsigned int toNumber(void) const      { return m_number; }
 	virtual const TagDate &toDate(void)       const      { throw std::runtime_error("Invalid type requested!"); }
 
-	virtual const TagType type(void)                     { return TAG_TYPE_NUMBER; }
+	virtual const TagType type(void) const               { return TAG_TYPE_NUMBER; }
 
 private:
 	const unsigned int m_number;
@@ -130,7 +130,7 @@ public:
 	virtual const unsigned int toNumber(void) const  { throw std::runtime_error("Invalid type requested!"); }
 	virtual const TagDate &toDate(void )      const  { return m_date; }
 
-	virtual const TagType type(void)                 { return TAG_TYPE_DATE; }
+	virtual const TagType type(void) const           { return TAG_TYPE_DATE; }
 
 private:
 	const TagDate m_date;

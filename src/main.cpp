@@ -34,6 +34,7 @@
 //Internal
 #include "types.h"
 #include "parser.h"
+#include "ape_tag.h"
 #include "unicode_support.h"
 
 //Const
@@ -49,6 +50,9 @@ static const unsigned int TAG_VERSION_MINOR = 0;
 
 void tag_help(void)
 {
+	LOG("APEv2 specifications by courtesy of Hydrogenaudio.org:\n");
+	LOG("http://wiki.hydrogenaudio.org/index.php?title=APEv2_specification\n");
+	LOG("\n\n");
 	LOG("Usage:\n");
 	LOG("   tag.exe <type> <file> [<tag 1> <tag 2> ... <tag n>]\n");
 	LOG("\n");
@@ -61,13 +65,13 @@ void tag_help(void)
 	LOG("   APE2 - APE Tag, version 2 (only type currently supported)\n");
 	LOG("\n");
 	LOG("Supported keys:\n");
-	LOG("   artist   <string>\n");
-	LOG("   album    <string>\n");
-	LOG("   track_no <number>\n");
-	LOG("   year     <ISO-8601 date>\n");
+	LOG("   Artist   <string>\n");
+	LOG("   Album    <string>\n");
+	LOG("   Track    <number>\n");
+	LOG("   Year     <ISO-8601 date>\n");
 	LOG("\n");
 	LOG("Example:\n");
-	LOG("   tag.exe APE2 \"C:\\My Folder\\File.mp3\" \"artist=John Doe\"\n");
+	LOG("   tag.exe APE2 \"C:\\My Folder\\File.mp3\" \"Artist=John Doe\"\n");
 	LOG("\n");
 }
 
@@ -117,6 +121,20 @@ static int tag_main(int argc, char* argv[])
 		LOG("No tags have been specified. Need to specify at least one tag!\n\n");
 		fclose(file);
 		return 1;
+	}
+
+	if(!ApeTagger::writeTags(file, tagItems))
+	{
+		LOG("An error occurred while trying to write tags to file!\n\n");
+		fclose(file);
+		return 1;
+	}
+
+	while(!tagItems.empty())
+	{
+		TagItem *tmp = tagItems.back();
+		tagItems.pop_back();
+		delete tmp; tmp = NULL;
 	}
 
 	fclose(file);
