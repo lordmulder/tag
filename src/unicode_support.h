@@ -30,7 +30,6 @@
 #ifndef UNICODE_SUPPORT_H_INCLUDED
 #define UNICODE_SUPPORT_H_INCLUDED
 
-#define _CRT_SECURE_NO_WARNINGS
 #include <cstdio>
 
 char *utf16_to_utf8(const wchar_t *input);

@@ -33,8 +33,8 @@
 
 //Internal
 #include "types.h"
+#include "parser.h"
 #include "unicode_support.h"
-
 
 //Const
 static const unsigned int TAG_VERSION_MAJOR = 1;
@@ -42,6 +42,34 @@ static const unsigned int TAG_VERSION_MINOR = 0;
 
 //Macros
 #define LOG(...) fprintf(stderr, __VA_ARGS__)
+
+///////////////////////////////////////////////////////////////////////////////
+// Help screen
+///////////////////////////////////////////////////////////////////////////////
+
+void tag_help(void)
+{
+	LOG("Usage:\n");
+	LOG("   tag.exe <type> <file> [<tag 1> <tag 2> ... <tag n>]\n");
+	LOG("\n");
+	LOG("Options:\n");
+	LOG("   type - The technical type of the meta tag to be added\n");
+	LOG("   file - the media file to append the tag to\n");
+	LOG("   tag  - meta tag item to be added in the \"key=value\" format\n");
+	LOG("\n");
+	LOG("Supported tag types:\n");
+	LOG("   APE2 - APE Tag, version 2 (only type currently supported)\n");
+	LOG("\n");
+	LOG("Supported keys:\n");
+	LOG("   artist   <string>\n");
+	LOG("   album    <string>\n");
+	LOG("   track_no <number>\n");
+	LOG("   year     <ISO-8601 date>\n");
+	LOG("\n");
+	LOG("Example:\n");
+	LOG("   tag.exe APE2 \"C:\\My Folder\\File.mp3\" \"artist=John Doe\"\n");
+	LOG("\n");
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 // Main function
@@ -56,6 +84,43 @@ static int tag_main(int argc, char* argv[])
 	LOG("it under the terms of the GNU General Public License <http://www.gnu.org/>.\n");
 	LOG("Note that this program is distributed with ABSOLUTELY NO WARRANTY.\n\n");
 
+	if(argc < 3)
+	{
+		tag_help();
+		return 1;
+	}
+
+	if(_stricmp(argv[1], "APE2") != 0)
+	{
+		LOG("Unknown tag type:\n%s\n\n", argv[1]);
+		return 1;
+	}
+
+	FILE *file = fopen_utf8(argv[2], "ab");
+
+	if(!file)
+	{
+		LOG("Failed to open file for appending:\n%s\n\nInvalid file specified or access denied!\n\n", argv[2]);
+		return 1;
+	}
+
+	std::vector<TagItem*> tagItems;
+	if(!TagParser::parse(argc, argv, tagItems))
+	{
+		LOG("Failed to parse tag specification, invalid input!\n\n");
+		fclose(file);
+		return 1;
+	}
+
+	if(tagItems.size() < 1)
+	{
+		LOG("No tags have been specified. Need to specify at least one tag!\n\n");
+		fclose(file);
+		return 1;
+	}
+
+	fclose(file);
+	LOG("Tags have been written successfully.\n\n");
 	return 0;
 }
 

@@ -171,7 +171,7 @@ public:
 private:
 	TagItem(const char* key, const TagData *data)
 	{
-		if((key != NULL) || (data != NULL))
+		if((key != NULL) && (data != NULL))
 		{
 			m_key = _strdup(key);
 			m_data = data;
@@ -184,6 +184,8 @@ private:
 
 	char *m_key;
 	const TagData *m_data;
+
+	TagItem &operator=(const TagItem &rhs) { throw std::runtime_error("Unimplemented!");}
 };
 
 #endif //TAG_TYPES_H_INCLUDED
