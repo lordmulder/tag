@@ -22,6 +22,7 @@
 
 #include "parser.h"
 #include "types.h"
+#include "keys.h"
 
 #include <cstdio>
 #include <cstring>
@@ -29,22 +30,6 @@
 
 //Macros
 #define LOG(...) fprintf(stderr, __VA_ARGS__)
-
-///////////////////////////////////////////////////////////////////////////////
-// Supported Tag key
-///////////////////////////////////////////////////////////////////////////////
-
-static const struct
-{
-	const char *key;
-	const TagType type;
-}
-g_tagSpec[]
-{
-	{ "Artist", TAG_TYPE_STRING },
-	{ "Year",   TAG_TYPE_DATE   },
-	{ NULL, ((TagType)-1) }
-};
 
 ///////////////////////////////////////////////////////////////////////////////
 // Helper functions

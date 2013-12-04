@@ -35,6 +35,7 @@
 #include "types.h"
 #include "parser.h"
 #include "ape_tag.h"
+#include "keys.h"
 #include "unicode_support.h"
 
 //Const
@@ -65,10 +66,10 @@ void tag_help(void)
 	LOG("   APE2 - APE Tag, version 2 (only type currently supported)\n");
 	LOG("\n");
 	LOG("Supported keys:\n");
-	LOG("   Artist   <string>\n");
-	LOG("   Album    <string>\n");
-	LOG("   Track    <number>\n");
-	LOG("   Year     <ISO-8601 date>\n");
+	for(int i = 0; g_tagSpec[i].key; i++)
+	{
+		LOG("   %-15s - %s <%s>\n", g_tagSpec[i].key, g_tagSpec[i].info, type2string(g_tagSpec[i].type));
+	}
 	LOG("\n");
 	LOG("Example:\n");
 	LOG("   tag.exe APE2 \"C:\\My Folder\\File.mp3\" \"Artist=John Doe\"\n");
@@ -100,6 +101,19 @@ static int tag_main(int argc, char* argv[])
 		return 1;
 	}
 
+	std::vector<TagItem*> tagItems;
+	if(!TagParser::parse(argc, argv, tagItems))
+	{
+		LOG("Failed to parse tag specification, invalid input!\n\n");
+		return 1;
+	}
+
+	if(tagItems.size() < 1)
+	{
+		LOG("No tags have been specified. Need to specify at least one tag!\n\n");
+		return 1;
+	}
+
 	FILE *file = fopen_utf8(argv[2], "ab");
 
 	if(!file)
@@ -108,20 +122,7 @@ static int tag_main(int argc, char* argv[])
 		return 1;
 	}
 
-	std::vector<TagItem*> tagItems;
-	if(!TagParser::parse(argc, argv, tagItems))
-	{
-		LOG("Failed to parse tag specification, invalid input!\n\n");
-		fclose(file);
-		return 1;
-	}
-
-	if(tagItems.size() < 1)
-	{
-		LOG("No tags have been specified. Need to specify at least one tag!\n\n");
-		fclose(file);
-		return 1;
-	}
+	LOG("Writing tags to media file:\n%s\n\n", argv[2]);
 
 	if(!ApeTagger::writeTags(file, tagItems))
 	{
@@ -172,33 +173,33 @@ static LONG WINAPI exception_handler(struct _EXCEPTION_POINTERS *ExceptionInfo)
 
 static int tag_zero(int argc, char* argv[])
 {
-		int iResult = -1;
-		int argc_utf8;
-		char **argv_utf8;
+	int iResult = -1;
+	int argc_utf8;
+	char **argv_utf8;
 
-		try
-		{
-			init_console_utf8();
-			init_commandline_arguments_utf8(&argc_utf8, &argv_utf8);
+	try
+	{
+		init_console_utf8();
+		init_commandline_arguments_utf8(&argc_utf8, &argv_utf8);
 
-			iResult = tag_main(argc_utf8, argv_utf8);
+		iResult = tag_main(argc_utf8, argv_utf8);
 
-			free_commandline_arguments_utf8(&argc_utf8, &argv_utf8);
-			uninit_console_utf8();
-		}
-		catch(const std::exception &error)
-		{
-			fflush(stdout); fflush(stderr);
-			LOG("\nGURU MEDITATION !!!\n\nException error:\n%s\n", error.what());
-			_exit(-1);
-		}
-		catch(...)
-		{
-			fflush(stdout); fflush(stderr);
-			LOG("\nGURU MEDITATION !!!\n\nUnknown exception error!\n");
-			_exit(-1);
-		}
-		return iResult;
+		free_commandline_arguments_utf8(&argc_utf8, &argv_utf8);
+		uninit_console_utf8();
+	}
+	catch(const std::exception &error)
+	{
+		fflush(stdout); fflush(stderr);
+		LOG("\nGURU MEDITATION !!!\n\nException error:\n%s\n", error.what());
+		_exit(-1);
+	}
+	catch(...)
+	{
+		fflush(stdout); fflush(stderr);
+		LOG("\nGURU MEDITATION !!!\n\nUnknown exception error!\n");
+		_exit(-1);
+	}
+	return iResult;
 }
 
 int main(int argc, char* argv[])

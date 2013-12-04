@@ -18,6 +18,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ape_tag.h" />
+    <ClInclude Include="src\keys.h" />
     <ClInclude Include="src\parser.h" />
     <ClInclude Include="src\types.h" />
     <ClInclude Include="src\unicode_support.h" />

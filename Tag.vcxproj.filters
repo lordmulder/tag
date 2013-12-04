@@ -27,6 +27,9 @@
     <ClInclude Include="src\ape_tag.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\keys.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\unicode_support.cpp">

@@ -189,3 +189,22 @@ private:
 };
 
 #endif //TAG_TYPES_H_INCLUDED
+
+///////////////////////////////////////////////////////////////////////////////
+// Helper functions
+///////////////////////////////////////////////////////////////////////////////
+
+static const char* type2string(TagType t)
+{
+	switch(t)
+	{
+	case TAG_TYPE_STRING:
+		return "String";
+	case TAG_TYPE_NUMBER:
+		return "Numeric";
+	case TAG_TYPE_DATE:
+		return "ISO 8601 Date";
+	default:
+		return "Unknown";
+	}
+}

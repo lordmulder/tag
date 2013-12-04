@@ -128,14 +128,14 @@ bool ApeTagger::writeTags(FILE* file, const std::vector<TagItem*> &items)
 			return false;
 		}
 	}
+	LOG("\n");
 
 	//Prepare the APE header
 	ape_header_t header;
-
-	
+		
 	//Write header
 	init_header(&header, tagData.size(), items.size(), false);
-	if(fwrite(&header, sizeof(ape_header_t), 1, file) != sizeof(ape_header_t))
+	if(fwrite(&header, sizeof(ape_header_t), 1, file) != 1)
 	{
 		LOG("File operation has failed:\nUnable to write header to destination file!\n\n");
 		return false;
@@ -150,7 +150,7 @@ bool ApeTagger::writeTags(FILE* file, const std::vector<TagItem*> &items)
 	
 	//Write footer
 	init_header(&header, tagData.size(), items.size(), true);
-	if(fwrite(&header, sizeof(ape_header_t), 1, file) != sizeof(ape_header_t))
+	if(fwrite(&header, sizeof(ape_header_t), 1, file) != 1)
 	{
 		LOG("File operation has failed:\nUnable to write footer to destination file!\n\n");
 		return false;
@@ -162,54 +162,42 @@ bool ApeTagger::writeTags(FILE* file, const std::vector<TagItem*> &items)
 bool ApeTagger::appendTag(std::vector<unsigned char> &dest, TagItem* item)
 {
 	static const unsigned int flags_str = 0x00000001;
-	static const unsigned int flags_int = 0x00000003;
+	static const unsigned int flags_bin = 0x00000003;
 
-	unsigned int flags = 0xFFFFFFFF;
+	char tempBuffer[32];
+
 	const char *key = item->getTagKey();
-	size_t len = 0;
+	const char *str = NULL;
 
-	char dateBuffer[32];
-
-	//Determine data length
+	//Set the data source
 	switch(item->getTagData()->type())
 	{
 	case TAG_TYPE_STRING:
-		flags = flags_str;
-		len = strlen(item->getTagData()->toString());
+		str = item->getTagData()->toString();
 		break;
 	case TAG_TYPE_NUMBER:
-		flags = flags_int;
-		len = sizeof(unsigned int);
+		sprintf(tempBuffer, "%u", item->getTagData()->toNumber());
+		str = &tempBuffer[0];
 		break;
 	case TAG_TYPE_DATE:
-		flags = flags_str;
-		date2string(item->getTagData()->toDate(), dateBuffer);
-		len = strlen(dateBuffer);
+		date2string(item->getTagData()->toDate(), tempBuffer);
+		str = &tempBuffer[0];
 		break;
 	default:
 		throw std::runtime_error("Bad item type!");
 	}
 
-	//Write length, flags and the key (with NULL terminator!)
+	//Determine length
+	const size_t len = strlen(str);
+
+	//Write length, flags, key and the data
 	append_uint32(dest, len);
-	append_uint32(dest, flags);
+	append_uint32(dest, flags_str);
 	append_nbytes(dest, ((const unsigned char*)key), strlen(key) + 1);
+	append_nbytes(dest, ((const unsigned char*)str), len);
 
-	//Write the data
-	switch(item->getTagData()->type())
-	{
-	case TAG_TYPE_STRING:
-		append_nbytes(dest, ((const unsigned char*)item->getTagData()->toString()), len);
-		break;
-	case TAG_TYPE_NUMBER:
-		append_uint32(dest, item->getTagData()->toNumber());
-		break;
-	case TAG_TYPE_DATE:
-		append_nbytes(dest, ((const unsigned char*)dateBuffer), len);
-		break;
-	default:
-		throw std::runtime_error("Bad item type!");
-	}
+	//Logging
+	LOG("%-11s : %s\n", key, str);
 
 	return true;
 }
